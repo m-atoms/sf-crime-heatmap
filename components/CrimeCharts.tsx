@@ -30,11 +30,11 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function CrimeCharts() {
-  const { data: incidents, isLoading } = useAllIncidents()
+  const {  data, isLoading } = useAllIncidents()
   const { selectedWeek } = useTime()
   
   const chartData = useMemo(() => {
-    if (!incidents.length) return []
+    if (!data.length) return []
 
     const yearData: { [year: string]: number } = {}
     const startYear = 2018
@@ -49,7 +49,7 @@ export default function CrimeCharts() {
     }
     
     // Count incidents by month
-    incidents.forEach(incident => {
+    data.forEach(incident => {
       const date = new Date(incident.incident_datetime)
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
       yearData[key] = (yearData[key] || 0) + 1
@@ -61,7 +61,7 @@ export default function CrimeCharts() {
         date,
         incidents: count
       }))
-  }, [incidents])
+  }, [data])
 
   // Calculate current reference line position
   const currentDate = useMemo(() => {
