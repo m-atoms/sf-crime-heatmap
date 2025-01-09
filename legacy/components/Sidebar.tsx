@@ -1,7 +1,6 @@
 'use client'
 
 import { useIncidents } from '@/hooks/useIncidents'
-import { useAllIncidents } from '@/hooks/useAllIncidents'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useState, useMemo } from 'react'
 import { Button } from "@/components/ui/button"
@@ -40,11 +39,10 @@ const chartConfig = Object.entries(categoryColors).reduce((acc, [category, color
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const { data: incidents, isLoading: currentLoading } = useIncidents()
-  const { data: allIncidents, isLoading: allLoading } = useAllIncidents()
   const { selectedWeek } = useTime()
 
   const chartData = useMemo(() => {
-    if (!allIncidents.length) return []
+    if (!incidents.length) return []
 
     const yearData: { [key: string]: { [category: string]: number; total: number } } = {}
     const startYear = 2018
@@ -65,7 +63,7 @@ export default function Sidebar() {
     }
     
     // Count incidents by month and category
-    allIncidents.forEach(incident => {
+    incidents.forEach(incident => {
       const date = new Date(incident.incident_datetime)
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
       const category = incident.incident_category
@@ -85,7 +83,7 @@ export default function Sidebar() {
         date,
         ...counts
       }))
-  }, [allIncidents])
+  }, [incidents])
 
   // Calculate current reference line position
   const currentDate = useMemo(() => {
@@ -94,7 +92,7 @@ export default function Sidebar() {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
   }, [selectedWeek])
 
-  if (currentLoading || allLoading) return <div className="w-80 bg-background border-r p-4">Loading...</div>
+  if (currentLoading) return <div className="w-80 bg-background border-r p-4">Loading...</div>
 
   const totalIncidents = incidents.length
   const categoryCounts = incidents.reduce((acc, incident) => {
