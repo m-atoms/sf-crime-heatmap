@@ -19,7 +19,7 @@ interface Incident {
 
 async function fetchIncidents() {
   try {
-    const csvPath = path.join(process.cwd(), 'Police_Department_Incident_Reports__2018_to_Present_20250109.csv')
+    const csvPath = path.join(process.cwd(), 'data.csv')
     const fileContent = await fs.readFile(csvPath, 'utf-8')
     
     const records = parse(fileContent, {
