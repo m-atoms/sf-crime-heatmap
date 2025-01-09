@@ -1,6 +1,6 @@
 'use client'
 
-import { useIncidents } from '@/hooks/useIncidents'
+import { useSidebarStats } from '@/hooks/useSidebarStats'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { useState, useMemo } from 'react'
 import { Button } from "@/components/ui/button"
@@ -38,52 +38,10 @@ const chartConfig = Object.entries(categoryColors).reduce((acc, [category, color
 
 export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false)
-  const { data: incidents, isLoading: currentLoading } = useIncidents()
+  const { data: stats, isLoading: currentLoading } = useSidebarStats()
   const { selectedWeek } = useTime()
 
-  const chartData = useMemo(() => {
-    if (!incidents.length) return []
-
-    const yearData: { [key: string]: { [category: string]: number; total: number } } = {}
-    const startYear = 2018
-    const endYear = 2024
-    
-    // Initialize years
-    for (let year = startYear; year <= endYear; year++) {
-      for (let month = 0; month < 12; month++) {
-        const date = `${year}-${String(month + 1).padStart(2, '0')}`
-        yearData[date] = {
-          total: 0,
-          ...Object.keys(categoryColors).reduce((acc, category) => {
-            acc[category.toLowerCase().replace(/\s+/g, '_')] = 0
-            return acc
-          }, {} as { [category: string]: number })
-        }
-      }
-    }
-    
-    // Count incidents by month and category
-    incidents.forEach(incident => {
-      const date = new Date(incident.incident_datetime)
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
-      const category = incident.incident_category
-      
-      if (yearData[key]) {
-        yearData[key].total++
-        if (Object.keys(categoryColors).includes(category)) {
-          const categoryKey = category.toLowerCase().replace(/\s+/g, '_')
-          yearData[key][categoryKey] = (yearData[key][categoryKey] || 0) + 1
-        }
-      }
-    })
-    
-    return Object.entries(yearData)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([date, counts]) => ({
-        date,
-        ...counts
-      }))
-  }, [incidents])
+  const chartData = stats
 
   // Calculate current reference line position
   const currentDate = useMemo(() => {
@@ -94,11 +52,14 @@ export default function Sidebar() {
 
   if (currentLoading) return <div className="w-80 bg-background border-r p-4">Loading...</div>
 
-  const totalIncidents = incidents.length
-  const categoryCounts = incidents.reduce((acc, incident) => {
-    acc[incident.incident_category] = (acc[incident.incident_category] || 0) + 1
-    return acc
-  }, {} as Record<string, number>)
+  const totalIncidents = stats.reduce((sum, month) => sum + month.total, 0)
+  const categoryCounts = {
+    'Larceny Theft': stats.reduce((sum, month) => sum + month.larceny_theft, 0),
+    'Motor Vehicle Theft': stats.reduce((sum, month) => sum + month.motor_vehicle_theft, 0),
+    'Other Miscellaneous': stats.reduce((sum, month) => sum + month.other_miscellaneous, 0),
+    'Assault': stats.reduce((sum, month) => sum + month.assault, 0),
+    'Malicious Mischief': stats.reduce((sum, month) => sum + month.malicious_mischief, 0),
+  }
 
   const topCategories = Object.entries(categoryCounts)
     .sort((a, b) => b[1] - a[1])
