@@ -132,7 +132,6 @@ export function useSidebarStats() {
     fetchData()
   }, [safeEvaluateQuery])
 
-  console.log('sidebar stats', data)
   return {
     data,
     isLoading,
