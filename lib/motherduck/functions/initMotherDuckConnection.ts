@@ -11,6 +11,11 @@ export default async function initMotherDuckConnection(mdToken: string, database
     }
 
     try {
+        // Check for WebAssembly support
+        if (typeof WebAssembly === 'undefined') {
+            throw new Error('WebAssembly is not supported in your browser. This application requires WebAssembly support to function properly.')
+        }
+
         // Dynamically import MDConnection
         const { MDConnection } = await import("@motherduck/wasm-client")
 
@@ -23,6 +28,13 @@ export default async function initMotherDuckConnection(mdToken: string, database
         return connection
     } catch (error) {
         console.error("Failed to create MotherDuck connection", error)
-        throw error
+        if (error instanceof Error) {
+            // Add Safari-specific messaging
+            if (error.message.includes('WebAssembly')) {
+                throw new Error(`Browser compatibility issue: ${error.message}. If you're using Safari, please ensure you have WebAssembly enabled in your settings.`)
+            }
+            throw error
+        }
+        throw new Error('An unexpected error occurred while initializing the database connection')
     }
 }

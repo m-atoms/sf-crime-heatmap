@@ -181,9 +181,16 @@ export default function Sidebar() {
                 </ChartContainer>
               </CardContent>
             </Card>
+
+          <Card className="md:hidden">
+            <CardHeader>
+              <CardTitle>Map view is currently only available on larger (desktop) screens</CardTitle>
+            </CardHeader>
+          </Card>
           </div>
         </ScrollArea>
       )}
+   
     </div>
   )
 }
