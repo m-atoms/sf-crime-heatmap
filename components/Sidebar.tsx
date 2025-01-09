@@ -46,7 +46,7 @@ export default function Sidebar() {
   const chartData = useMemo(() => {
     if (!allIncidents.length) return []
 
-    const yearData: { [key: string]: { [category: string]: number } } = {}
+    const yearData: { [key: string]: { [category: string]: number; total: number } } = {}
     const startYear = 2018
     const endYear = 2024
     
@@ -54,10 +54,13 @@ export default function Sidebar() {
     for (let year = startYear; year <= endYear; year++) {
       for (let month = 0; month < 12; month++) {
         const date = `${year}-${String(month + 1).padStart(2, '0')}`
-        yearData[date] = Object.keys(categoryColors).reduce((acc, category) => {
-          acc[category.toLowerCase().replace(/\s+/g, '_')] = 0
-          return acc
-        }, {} as { [category: string]: number })
+        yearData[date] = {
+          total: 0,
+          ...Object.keys(categoryColors).reduce((acc, category) => {
+            acc[category.toLowerCase().replace(/\s+/g, '_')] = 0
+            return acc
+          }, {} as { [category: string]: number })
+        }
       }
     }
     
@@ -67,9 +70,12 @@ export default function Sidebar() {
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
       const category = incident.incident_category
       
-      if (yearData[key] && Object.keys(categoryColors).includes(category)) {
-        const categoryKey = category.toLowerCase().replace(/\s+/g, '_')
-        yearData[key][categoryKey] = (yearData[key][categoryKey] || 0) + 1
+      if (yearData[key]) {
+        yearData[key].total++
+        if (Object.keys(categoryColors).includes(category)) {
+          const categoryKey = category.toLowerCase().replace(/\s+/g, '_')
+          yearData[key][categoryKey] = (yearData[key][categoryKey] || 0) + 1
+        }
       }
     })
     
@@ -153,10 +159,10 @@ export default function Sidebar() {
                       tickLine={false}
                       tickMargin={10}
                       axisLine={false}
-                      interval={6}
+                      interval={12}
                     />
                     <ChartTooltip />
-                    <Bar dataKey="incidents" fill="var(--color-desktop)" radius={4} />
+                    <Bar dataKey="total" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
                     <ReferenceLine
                       x={currentDate}
                       stroke="red"
@@ -190,7 +196,7 @@ export default function Sidebar() {
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
-                      interval={6}
+                      interval={12}
                     />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     {Object.keys(categoryColors).map((category) => {

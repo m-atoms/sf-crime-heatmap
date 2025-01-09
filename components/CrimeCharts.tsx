@@ -30,9 +30,13 @@ const chartConfig = {
 } satisfies ChartConfig
 
 export default function CrimeCharts() {
-  const {  data, isLoading } = useAllIncidents()
+  const { data, isLoading } = useAllIncidents()
   const { selectedWeek } = useTime()
   
+  if (isLoading) {
+    return <div>Loading chart data...</div>
+  }
+
   const chartData = useMemo(() => {
     if (!data.length) return []
 

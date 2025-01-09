@@ -16,7 +16,7 @@ export default function Home() {
       <main className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col p-4 h-screen overflow-hidden">
-          <h1 className="text-2xl font-bold mb-4 text-center">SF Crime Heatmap (2018-2025)</h1>
+          <h1 className="text-2xl font-bold mb-4 text-center">Police Department Incident Reports (2018-2025)</h1>
           <div className="relative flex-1 mb-4">
             <Suspense fallback={<Skeleton className="h-full w-full" />}>
               <Map />
