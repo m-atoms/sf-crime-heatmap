@@ -6,21 +6,35 @@ import { useMemo } from 'react'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
+type WeeklyIncidents = { [weekIndex: number]: Incident[] }
+
 export function useIncidents() {
   const { data: rawData, error, isLoading } = useSWR<Incident[]>('/api/incidents', fetcher)
   const { selectedWeek } = useTime()
 
-  const data = useMemo(() => {
-    if (!rawData) return []
+  // Pre-process data into weekly chunks when rawData changes
+  const weeklyData = useMemo(() => {
+    if (!rawData) return {}
 
-    const weekStart = new Date(START_DATE.getTime() + selectedWeek * 7 * 24 * 60 * 60 * 1000)
-    const weekEnd = new Date(weekStart.getTime() + 7 * 24 * 60 * 60 * 1000)
-
-    return rawData.filter(incident => {
+    const weeklyChunks: WeeklyIncidents = {}
+    
+    rawData.forEach(incident => {
       const incidentDate = new Date(incident.incident_datetime)
-      return incidentDate >= weekStart && incidentDate < weekEnd
+      const weekIndex = Math.floor((incidentDate.getTime() - START_DATE.getTime()) / (7 * 24 * 60 * 60 * 1000))
+      
+      if (!weeklyChunks[weekIndex]) {
+        weeklyChunks[weekIndex] = []
+      }
+      weeklyChunks[weekIndex].push(incident)
     })
-  }, [rawData, selectedWeek])
+
+    return weeklyChunks
+  }, [rawData])
+
+  // Get data for selected week
+  const data = useMemo(() => {
+    return weeklyData[selectedWeek] || []
+  }, [weeklyData, selectedWeek])
 
   return {
     data,
