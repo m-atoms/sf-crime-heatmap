@@ -7,6 +7,10 @@ import L from 'leaflet'
 import 'leaflet.heat'
 import { useIncidents } from '@/hooks/useIncidents'
 
+declare module 'leaflet' {
+  export function heatLayer(latlngs: [number, number, number][], options?: any): any
+}
+
 // @ts-ignore
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -38,7 +42,7 @@ export default function Map() {
   if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
-  const heatmapData = incidents.map(incident => [
+  const heatmapData: [number, number, number][] = incidents.map(incident => [
     incident.latitude,
     incident.longitude,
     1 // intensity

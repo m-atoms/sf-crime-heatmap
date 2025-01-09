@@ -1,19 +1,46 @@
 import { NextResponse } from 'next/server'
+import { parse } from 'csv-parse/sync'
+import { promises as fs } from 'fs'
+import path from 'path'
 
-// This is a mock function. In a real application, you would fetch data from a database or external API.
+interface CSVRecord {
+  'Incident Datetime': string
+  'Latitude': string
+  'Longitude': string
+  'Incident Category': string
+}
+
+interface Incident {
+  incident_datetime: string
+  latitude: number | null
+  longitude: number | null
+  incident_category: string
+}
+
 async function fetchIncidents() {
-  // Simulating API delay
-  await new Promise(resolve => setTimeout(resolve, 1000))
+  try {
+    const csvPath = path.join(process.cwd(), 'Police_Department_Incident_Reports__2018_to_Present_20250109.csv')
+    const fileContent = await fs.readFile(csvPath, 'utf-8')
+    
+    const records = parse(fileContent, {
+      columns: true,
+      skip_empty_lines: true,
+      fromLine: 1,
+    }) as CSVRecord[]
 
-  // Generate mock data
-  const incidents = Array.from({ length: 1000 }, (_, i) => ({
-    incident_datetime: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000).toISOString(),
-    latitude: 37.7749 + (Math.random() - 0.5) * 0.1,
-    longitude: -122.4194 + (Math.random() - 0.5) * 0.1,
-    incident_category: ['Larceny Theft', 'Assault', 'Burglary', 'Vehicle Theft', 'Robbery'][Math.floor(Math.random() * 5)]
-  }))
-
-  return incidents
+    return records.map((record: CSVRecord): Incident => ({
+      incident_datetime: record['Incident Datetime'],
+      latitude: parseFloat(record['Latitude']) || null,
+      longitude: parseFloat(record['Longitude']) || null,
+      incident_category: record['Incident Category']
+    })).filter((incident: Incident) => 
+      incident.latitude !== null && 
+      incident.longitude !== null
+    )
+  } catch (error) {
+    console.error('Error reading CSV file:', error)
+    throw error
+  }
 }
 
 export async function GET() {
