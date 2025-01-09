@@ -6,7 +6,7 @@ import { Incident } from '@/types/incidents'
 import { useState, useEffect } from 'react'
 import type { DuckDBRow } from '@motherduck/wasm-client'
 /*
-all columns
+all columns, used for llm dont delete
 "Incident Datetime",
 "Incident Date",
 "Incident Time",
@@ -46,32 +46,10 @@ Neighborhoods,
 const SQL_QUERY = `
 SELECT 
   "Incident Datetime" as incident_datetime,
-  "Incident Date" as incident_date,
-  "Incident Time" as incident_time,
-  "Incident Year" as incident_year,
-  "Incident Day of Week" as incident_day_of_week,
-  "Report Datetime" as report_datetime,
-  "Row ID" as row_id,
-  "Incident ID" as incident_id,
-  "Incident Number" as incident_number,
-  "CAD Number" as cad_number,
-  "Report Type Code" as report_type_code,
-  "Report Type Description" as report_type_description,
-  "Filed Online" as filed_online,
-  "Incident Code" as incident_code,
   "Incident Category" as incident_category,
-  "Incident Subcategory" as incident_subcategory,
   "Incident Description" as incident_description,
-  Resolution as resolution,
-  Intersection as intersection,
-  CNN as cnn,
-  "Police District" as police_district,
-  "Analysis Neighborhood" as analysis_neighborhood,
-  "Supervisor District" as supervisor_district,
   Latitude as latitude,
-  Longitude as longitude,
-  Point as point,
-  Neighborhoods as neighborhoods
+  Longitude as longitude
 FROM 
   sf_crime_stats.data
 WHERE 
@@ -99,32 +77,10 @@ export function useIncidents() {
         if (result.status === "success") {
           const incidents = result.result.data.toRows().map((row: DuckDBRow) => ({
             incident_datetime: String(row.incident_datetime),
-            incident_date: String(row.incident_date),
-            incident_time: String(row.incident_time),
-            incident_year: Number(row.incident_year),
-            incident_day_of_week: String(row.incident_day_of_week),
-            report_datetime: String(row.report_datetime),
-            row_id: String(row.row_id),
-            incident_id: String(row.incident_id),
-            incident_number: String(row.incident_number),
-            cad_number: String(row.cad_number),
-            report_type_code: String(row.report_type_code),
-            report_type_description: String(row.report_type_description),
-            filed_online: Boolean(row.filed_online),
-            incident_code: String(row.incident_code),
             incident_category: String(row.incident_category),
-            incident_subcategory: String(row.incident_subcategory),
             incident_description: String(row.incident_description),
-            resolution: String(row.resolution),
-            intersection: String(row.intersection),
-            cnn: String(row.cnn),
-            police_district: String(row.police_district),
-            analysis_neighborhood: String(row.analysis_neighborhood),
-            supervisor_district: String(row.supervisor_district),
             latitude: Number(row.latitude) || 0,
             longitude: Number(row.longitude) || 0,
-            point: String(row.point),
-            neighborhoods: String(row.neighborhoods)
           }))
           setRawData(incidents)
           setError(null)

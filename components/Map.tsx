@@ -39,7 +39,6 @@ export default function Map() {
   const [mapCenter] = useState<[number, number]>([37.7749, -122.4194])
   const { data: incidents, isLoading, error } = useIncidents()
 
-  if (isLoading) return <div>Loading...</div>
   if (error) return <div>Error: {error.message}</div>
 
   const heatmapData: [number, number, number][] = incidents.map(incident => [
@@ -49,12 +48,15 @@ export default function Map() {
   ])
 
   return (
+    <>
     <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+      
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
+        />
       <HeatmapLayer data={heatmapData} />
     </MapContainer>
+        </>
   )
 }

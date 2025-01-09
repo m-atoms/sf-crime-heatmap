@@ -50,8 +50,6 @@ export default function Sidebar() {
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
   }, [selectedWeek])
 
-  if (currentLoading) return <div className="w-80 bg-background border-r p-4">Loading...</div>
-
   const totalIncidents = stats.reduce((sum, month) => sum + month.total, 0)
   const categoryCounts = {
     'Larceny Theft': stats.reduce((sum, month) => sum + month.larceny_theft, 0),

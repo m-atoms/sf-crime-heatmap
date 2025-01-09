@@ -1,29 +1,7 @@
 export type Incident = {
   incident_datetime: string;
-  incident_date: string;
-  incident_time: string;
-  incident_year: number;
-  incident_day_of_week: string;
-  report_datetime: string;
-  row_id: string;
-  incident_id: string;
-  incident_number: string;
-  cad_number: string;
-  report_type_code: string;
-  report_type_description: string;
-  filed_online: boolean;
-  incident_code: string;
   incident_category: string;
-  incident_subcategory: string;
   incident_description: string;
-  resolution: string;
-  intersection: string;
-  cnn: string;
-  police_district: string;
-  analysis_neighborhood: string;
-  supervisor_district: string;
   latitude: number;
   longitude: number;
-  point: string;
-  neighborhoods: string;
 } 

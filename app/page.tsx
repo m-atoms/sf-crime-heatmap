@@ -1,19 +1,41 @@
-
+'use client'
 import dynamic from 'next/dynamic'
 import { Suspense } from 'react'
 import { Skeleton } from "@/components/ui/skeleton"
 import Sidebar from '@/components/Sidebar'
 import TimeSlider from '@/components/TimeSlider'
 import { TimeProvider } from '@/contexts/TimeContext'
+import { useSidebarStats } from '@/hooks/useSidebarStats'
+import { useIncidents } from '@/hooks/useIncidents'
 
 const Map = dynamic(() => import('@/components/Map'), {
   loading: () => <Skeleton className="h-[calc(100vh-8rem)] w-full" />,
   ssr: false
 })
 
+
 export default function Home() {
+  const sidebar = useSidebarStats()
+  const inc = useIncidents()
+  if(inc.error || sidebar.error){
+    return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
+    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+    <p className="mt-4 text-lg text-muted-foreground">
+      Error loading data
+    </p>
+  </div>
+  )
+  }
+  if(inc.isLoading || sidebar.isLoading){
+    return (
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
+        <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        <p className="mt-4 text-lg text-muted-foreground">Loading data, this should only take a minute...</p>
+      </div>
+    )
+  }
   return (
-    <TimeProvider>
       <main className="flex min-h-screen">
         <Sidebar />
         <div className="flex-1 flex flex-col p-4 h-screen overflow-hidden">
@@ -28,6 +50,5 @@ export default function Home() {
           </div>
         </div>
       </main>
-    </TimeProvider>
   )
 }
