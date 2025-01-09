@@ -3,13 +3,14 @@ import { Incident } from '@/types/incidents'
 import { useTime } from '@/contexts/TimeContext'
 import { START_DATE } from '@/components/TimeSlider'
 import { useMemo } from 'react'
+import { useAllIncidents } from './useAllIncidents'
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json())
 
 type WeeklyIncidents = { [weekIndex: number]: Incident[] }
 
 export function useIncidents() {
-  const { data: rawData, error, isLoading } = useSWR<Incident[]>('/api/incidents', fetcher)
+  const { data: rawData, isLoading, error } = useAllIncidents()
   const { selectedWeek } = useTime()
 
   // Pre-process data into weekly chunks when rawData changes
