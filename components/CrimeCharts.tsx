@@ -6,6 +6,7 @@ import { useAllIncidents } from "@/hooks/useAllIncidents"
 import { useTime } from "@/contexts/TimeContext"
 import { useMemo } from "react"
 import { START_DATE } from "@/components/TimeSlider"
+import { getDatasetEndDate } from "@/lib/utils"
 
 import {
   Card,
@@ -42,7 +43,7 @@ export default function CrimeCharts() {
 
     const yearData: { [year: string]: number } = {}
     const startYear = 2018
-    const endYear = 2025
+    const endYear = getDatasetEndDate().getFullYear()
     
     // Initialize years
     for (let year = startYear; year <= endYear; year++) {
@@ -156,7 +157,9 @@ export default function CrimeCharts() {
       <Card>
         <CardHeader>
           <CardTitle>Monthly Crime Distribution</CardTitle>
-          <CardDescription>Bar chart showing criminal incidents by month (2018-2025)</CardDescription>
+          <CardDescription>
+            Bar chart showing criminal incidents by month (2018-{getDatasetEndDate().getFullYear()})
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>

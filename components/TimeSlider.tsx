@@ -5,9 +5,10 @@ import { Label } from "@/components/ui/label"
 import { useTime } from "@/contexts/TimeContext"
 import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
+import { getDatasetEndDate } from "@/lib/utils"
 
 export const START_DATE = new Date('2018-01-01')
-export const END_DATE = new Date('2025-01-07')
+export const END_DATE = getDatasetEndDate()
 export const TOTAL_WEEKS = Math.floor((END_DATE.getTime() - START_DATE.getTime()) / (7 * 24 * 60 * 60 * 1000))
 
 const SPEED_STORAGE_KEY = 'sf-crime-map:playback-speed'

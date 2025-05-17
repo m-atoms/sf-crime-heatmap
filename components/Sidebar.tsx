@@ -8,6 +8,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, ReferenceLine } from "recharts"
 import { useTime } from '@/contexts/TimeContext'
 import { START_DATE } from '@/components/TimeSlider'
+import { getDatasetEndDate } from '@/lib/utils'
 import { ScrollArea } from "@/components/ui/scroll-area"
 import {
   ChartConfig,
@@ -105,7 +106,9 @@ export default function Sidebar() {
             <Card>
               <CardHeader className="pb-2">
                 <CardTitle>Monthly Distribution</CardTitle>
-                <CardDescription>Incidents by month (2018-2025)</CardDescription>
+                <CardDescription>
+                  Incidents by month (2018-{getDatasetEndDate().getFullYear()})
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <ChartContainer config={chartConfig}>
