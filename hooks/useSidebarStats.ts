@@ -1,5 +1,6 @@
 import { useMotherDuckClientState } from '@/lib/motherduck/context/motherduckClientContext'
 import { useState, useEffect } from 'react'
+import { getDatasetEndDate, formatDateISO } from '@/lib/utils'
 /*
 all columns
 "Incident Datetime",
@@ -48,6 +49,7 @@ export interface MonthlyStats {
   malicious_mischief: number
 }
 
+const END_DATE_SQL = formatDateISO(getDatasetEndDate())
 const SQL_QUERY = `
 WITH parsed_dates AS (
   SELECT 
@@ -62,7 +64,7 @@ WITH parsed_dates AS (
     sf_crime_stats.data
   WHERE 
     "Incident Datetime" >= '2018-01-01'
-    AND "Incident Datetime" <= '2025-12-31'
+    AND "Incident Datetime" <= '${END_DATE_SQL}'
     AND "Incident Category" != 'Non-Criminal'
   GROUP BY 
     "Incident Datetime",

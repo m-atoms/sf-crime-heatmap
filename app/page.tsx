@@ -7,6 +7,7 @@ import TimeSlider from '@/components/TimeSlider'
 import { useSidebarStats } from '@/hooks/useSidebarStats'
 import { useIncidents } from '@/hooks/useIncidents'
 import { useIsMobile } from '@/components/ui/use-mobile'
+import { getDatasetEndDate } from '@/lib/utils'
 
 const Map = dynamic(() => import('@/components/Map'), {
   loading: () => <Skeleton className="h-[calc(100vh-8rem)] w-full" />,
@@ -54,7 +55,9 @@ export default function Home() {
       <main className="flex min-h-screen">
         <Sidebar />
         <div className="hidden md:flex flex-1  flex-col p-4 h-screen overflow-hidden">
-          <h1 className="text-2xl font-bold mb-4 text-center">Police Department Incident Reports (2018-2025)</h1>
+          <h1 className="text-2xl font-bold mb-4 text-center">
+            Police Department Incident Reports (2018-{getDatasetEndDate().getFullYear()})
+          </h1>
           <div className="relative flex-1 mb-4">
             <MapComponent />
           </div>

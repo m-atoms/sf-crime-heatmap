@@ -1,6 +1,7 @@
 import { useTime } from '@/contexts/TimeContext'
 import { START_DATE } from '@/components/TimeSlider'
 import { useMemo } from 'react'
+import { getDatasetEndDate, formatDateISO } from '@/lib/utils'
 import { useMotherDuckClientState } from '@/lib/motherduck/context/motherduckClientContext'
 import { Incident } from '@/types/incidents'
 import { useState, useEffect } from 'react'
@@ -43,21 +44,22 @@ Neighborhoods,
 "Current Supervisor Districts",
 "Current Police Districts"
 */
+const END_DATE_SQL = formatDateISO(getDatasetEndDate())
 const SQL_QUERY = `
-SELECT 
+SELECT
   "Incident Datetime" as incident_datetime,
   "Incident Category" as incident_category,
   "Incident Description" as incident_description,
   Latitude as latitude,
   Longitude as longitude
-FROM 
+FROM
   sf_crime_stats.data
-WHERE 
-  Latitude IS NOT NULL 
+WHERE
+  Latitude IS NOT NULL
   AND Longitude IS NOT NULL
   AND "Incident Category" != 'Non-Criminal'
   AND "Incident Datetime" >= '2018-01-01'
-  AND "Incident Datetime" <= '2025-12-31'
+  AND "Incident Datetime" <= '${END_DATE_SQL}'
 ORDER BY "Incident Datetime" DESC;
 `
 
