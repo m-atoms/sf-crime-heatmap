@@ -175,6 +175,9 @@ const ChartTooltipContent = React.forwardRef<
 
     const nestLabel = payload.length === 1 && indicator !== "dot"
 
+    // Custom: Get total from the first payload's data (for monthly stats)
+    const total = payload[0]?.payload?.total
+
     return (
       <div
         ref={ref}
@@ -250,6 +253,13 @@ const ChartTooltipContent = React.forwardRef<
             )
           })}
         </div>
+        {/* Custom: Show total if available */}
+        {typeof total === 'number' && (
+          <div className="pt-2 border-t mt-2 text-right">
+            <span className="text-muted-foreground">Total: </span>
+            <span className="font-mono font-bold">{total.toLocaleString()}</span>
+          </div>
+        )}
       </div>
     )
   }

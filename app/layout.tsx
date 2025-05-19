@@ -1,7 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import { MotherDuckClientProvider } from '@/lib/motherduck/context/motherduckClientContext'
 import { TimeProvider } from '@/contexts/TimeContext'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -19,11 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <MotherDuckClientProvider>
-          <TimeProvider>
-            {children}
-          </TimeProvider>
-        </MotherDuckClientProvider>
+        <TimeProvider>
+          {children}
+        </TimeProvider>
       </body>
     </html>
   )

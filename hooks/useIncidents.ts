@@ -1,10 +1,9 @@
 import { useTime } from '@/contexts/TimeContext'
 import { START_DATE } from '@/components/TimeSlider'
 import { useMemo } from 'react'
-import { useMotherDuckClientState } from '@/lib/motherduck/context/motherduckClientContext'
 import { Incident } from '@/types/incidents'
 import { useState, useEffect } from 'react'
-import type { DuckDBRow } from '@motherduck/wasm-client'
+import { supabase } from '@/lib/supabase/client'
 /*
 all columns, used for llm dont delete
 "Incident Datetime",
@@ -43,28 +42,8 @@ Neighborhoods,
 "Current Supervisor Districts",
 "Current Police Districts"
 */
-const SQL_QUERY = `
-SELECT 
-  "Incident Datetime" as incident_datetime,
-  "Incident Category" as incident_category,
-  "Incident Description" as incident_description,
-  Latitude as latitude,
-  Longitude as longitude
-FROM 
-  sf_crime_stats.data
-WHERE 
-  Latitude IS NOT NULL 
-  AND Longitude IS NOT NULL
-  AND "Incident Category" != 'Non-Criminal'
-  AND "Incident Datetime" >= '2018-01-01'
-  AND "Incident Datetime" <= '2025-12-31'
-ORDER BY "Incident Datetime" DESC;
-`
-
-type WeeklyIncidents = { [weekIndex: number]: Incident[] }
 
 export function useIncidents() {
-  const { safeEvaluateQuery } = useMotherDuckClientState()
   const { selectedWeek } = useTime()
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
@@ -73,19 +52,37 @@ export function useIncidents() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await safeEvaluateQuery(SQL_QUERY)
-        if (result.status === "success") {
-          const incidents = result.result.data.toRows().map((row: DuckDBRow) => ({
-            incident_datetime: String(row.incident_datetime),
-            incident_category: String(row.incident_category),
-            incident_description: String(row.incident_description),
-            latitude: Number(row.latitude) || 0,
-            longitude: Number(row.longitude) || 0,
-          }))
-          setRawData(incidents)
+        // Query incidents from Supabase using the correct table and column names
+        const { data, error: supabaseError } = await supabase
+          .from('sfpd_incident_reports')
+          .select(`
+            "Incident Datetime",
+            "Incident Category",
+            "Incident Description",
+            Latitude,
+            Longitude
+          `)
+
+        if (supabaseError) {
+          throw supabaseError
+        }
+
+        if (data) {
+          // Map the Supabase row fields to the Incident type expected by the app
+          setRawData(
+            data.map((row: any) => ({
+              incident_datetime: row["Incident Datetime"],
+              incident_category: row["Incident Category"],
+              incident_description: row["Incident Description"],
+              latitude: row.Latitude,
+              longitude: row.Longitude,
+            }))
+          )
           setError(null)
-        } else {
-          setError(new Error(result.err.message))
+          console.log('Incidents from Supabase:', data)
+          if (data && data.length > 0) {
+            console.log('First row:', data[0]);
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err : new Error('An error occurred'))
@@ -95,13 +92,13 @@ export function useIncidents() {
     }
 
     fetchData()
-  }, [safeEvaluateQuery])
+  }, [])
 
   // Pre-process data into weekly chunks when rawData changes
   const weeklyData = useMemo(() => {
     if (!rawData) return {}
 
-    const weeklyChunks: WeeklyIncidents = {}
+    const weeklyChunks: { [weekIndex: number]: Incident[] } = {}
     
     rawData.forEach(incident => {
       const incidentDate = new Date(incident.incident_datetime)
