@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useState, useMemo } from 'react'
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, ReferenceLine } from "recharts"
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis, ReferenceLine } from "recharts"
 import { useTime } from '@/contexts/TimeContext'
 import { START_DATE } from '@/components/TimeSlider'
 import { ScrollArea } from "@/components/ui/scroll-area"
@@ -63,6 +63,9 @@ export default function Sidebar() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
 
+  // Find the max total for the y-axis domain
+  const maxTotal = Math.max(...stats.map(month => month.total), 0)
+
   return (
     <div className={`bg-background border-r transition-all duration-300 ease-in-out ${isCollapsed ? 'w-12' : 'w-[600px]'} relative`}>
       {/* <Button
@@ -112,12 +115,13 @@ export default function Sidebar() {
                   <BarChart data={chartData} height={200}>
                     <CartesianGrid vertical={false} />
                     <XAxis
-                      dataKey="date"
+                      dataKey="month"
                       tickLine={false}
                       tickMargin={10}
                       axisLine={false}
                       interval={12}
                     />
+                    <YAxis />
                     <ChartTooltip />
                     <Bar dataKey="total" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
                     <ReferenceLine
@@ -149,12 +153,13 @@ export default function Sidebar() {
                   >
                     <CartesianGrid vertical={false} />
                     <XAxis
-                      dataKey="date"
+                      dataKey="month"
                       tickLine={false}
                       axisLine={false}
                       tickMargin={8}
                       interval={12}
                     />
+                    <YAxis />
                     <ChartTooltip content={<ChartTooltipContent />} />
                     {Object.keys(categoryColors).map((category) => {
                       const key = category.toLowerCase().replace(/\s+/g, '_')
